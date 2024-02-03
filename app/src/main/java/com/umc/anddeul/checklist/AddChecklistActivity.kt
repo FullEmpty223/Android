@@ -14,6 +14,10 @@ class AddChecklistActivity : AppCompatActivity() {
         binding = ActivityAddChecklistBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        val contents = binding.checkliEtContents.text.toString()
+
+        //날짜
+//        val date =
     }
 
 }

@@ -1,13 +1,23 @@
 package com.umc.anddeul.checklist
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.umc.anddeul.checklist.model.Root
+import com.umc.anddeul.checklist.network.ChecklistInterface
 import com.umc.anddeul.databinding.FragmentChecklistBinding
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.text.SimpleDateFormat
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -22,19 +32,20 @@ class ChecklistFragment : Fragment() {
     lateinit var binding: FragmentChecklistBinding
     private var checklist = ArrayList<Checklist>()
     private var dateSet = ArrayList<DateSet>()
-    private var GALLERY_REQUEST_CODE = 405
+    val checklistRVAdapter by lazy {
+        ChecklistRVAdapter()
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentChecklistBinding.inflate(inflater, container, false)
-        checklist.add(Checklist("체크리스트 내용", "율", "이미지파일", false))
-        checklist.add(Checklist("체크리스트 내용", "도도", "d", false))
-        checklist.add(Checklist("체크리스트 내용", "도도", "d", false))
-        checklist.add(Checklist("체크리스트 내용", "율", "이미지파일", false))
-        checklist.add(Checklist("체크리스트 내용", "도도", "d", false))
-        checklist.add(Checklist("체크리스트 내용", "도도", "d", false))
+//        checklist.add(Checklist("체크리스트 내용", "율", "이미지파일", false))
+//        checklist.add(Checklist("체크리스트 내용", "도도", "d", false))
+//        checklist.add(Checklist("체크리스트 내용", "도도", "d", false))
+//        checklist.add(Checklist("체크리스트 내용", "율", "이미지파일", false))
+//        checklist.add(Checklist("체크리스트 내용", "도도", "d", false))
+//        checklist.add(Checklist("체크리스트 내용", "도도", "d", false))
 
         //리사이클러뷰 연결
-        val checklistRVAdapter = ChecklistRVAdapter(checklist)
         binding.checklistRecylerView.adapter = checklistRVAdapter
         binding.checklistRecylerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
 
@@ -51,6 +62,43 @@ class ChecklistFragment : Fragment() {
         binding.checkliTvDate.text = dateStamp
 
 
+        //토큰 가져오기
+        val spf: SharedPreferences = context!!.getSharedPreferences("myToken", Context.MODE_PRIVATE)
+        val token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrYWthb19pZCI6WyIzMzA0MTMzMDkzIl0sImlhdCI6MTcwNjY4MzkxMH0.ncVxzwxBVaiMegGD0VU5pI5i9GJjhrU8kUIYtQrSLSg"
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl("http://umc-garden.store")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val service = retrofit.create(ChecklistInterface::class.java)
+
+        //날짜 구하기 어떻게 할가...
+
+
+        val readCallback = object : Callback<Root> {
+            override fun onResponse(call: Call<Root>, response: Response<Root>) {
+                if(response.isSuccessful) {
+                    val root: Root? = response.body()
+                    checklistRVAdapter.list = root?.result
+                    checklistRVAdapter.notifyDataSetChanged()
+                }else {
+                    Log.d("apiCallback", "response unsuccessful")
+                    Log.d("apiCallback", response.errorBody()!!.toString())
+                }
+            }
+
+            override fun onFailure(call: Call<Root>, t: Throwable) {
+                Log.d("apiCallback", "API CALL Failure ${t.message}")
+            }
+        }
+
+        val readCall : Call<Root> = service.getChecklist(
+            "userid",
+            "2000-01-01"
+        )
+
+        readCall.enqueue(readCallback)
 
 
         return binding.root
@@ -93,4 +141,7 @@ class ChecklistFragment : Fragment() {
 //            }
 //        }
 //    }
+
+
+
 }

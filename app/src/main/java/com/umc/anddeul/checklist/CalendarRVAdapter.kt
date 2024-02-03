@@ -14,7 +14,6 @@ import java.time.LocalDate
 import java.util.Date
 
 class CalendarRVAdapter(private val date: ArrayList<DateSet>) : RecyclerView.Adapter<CalendarRVAdapter.ViewHolder>() {
-
     override fun getItemCount(): Int {
         return date.size
     }

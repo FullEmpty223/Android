@@ -44,6 +44,12 @@ dependencies {
     implementation("androidx.navigation:navigation-fragment-ktx:2.4.0")
     implementation ("com.google.android.material:material:1.11.0")
 
+    //Retrofit
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    //Retrofit with Gson
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+    //Glide
+    implementation ("com.github.bumptech.glide:glide:4.16.0")
 
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
